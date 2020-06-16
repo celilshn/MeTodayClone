@@ -6,4 +6,10 @@
     <string name="app_name_header">Me Today</string>
     <string name="open">Acik</string>
     <string name="close">Kapali</string>
+    <string name="dialog_permission_title">Okuma Izni</string>
+    <string name="dialog_permission_body">Sadece Fotoğraflarına erişmek için okuma izni istiyoruz.</string>
+    <string name="exit_app">Uygulamadan Çık</string>
+    <string name="allow_app">İzin Ver</string>
+    <string name="dialog_permission_message">Sadece Fotoğraflarına Erişmek İçin İzin İstiyoruz</string>
+    <string name="allow">İzin Ver</string>
 </resources>
