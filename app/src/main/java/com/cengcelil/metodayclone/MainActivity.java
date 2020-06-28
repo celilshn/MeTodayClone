@@ -20,9 +20,10 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.cengcelil.metodayclone.Model.GalleryHelper;
 import com.google.android.material.navigation.NavigationView;
 
+import static com.cengcelil.metodayclone.Utils.READ_PERMISSION;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity";
-    private static final String READ_PERMISSION = Manifest.permission.READ_EXTERNAL_STORAGE;
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
@@ -53,12 +54,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (ContextCompat.checkSelfPermission(this, READ_PERMISSION) == PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "controlPermissions: Uygulama izni zaten alınmış.");
             //Uygulama akışının devamı
-            Log.d(TAG, "controlPermissions: "+galleryHelper.getAllImagesPath().size());
-            Log.d(TAG, "controlPermissions: "+galleryHelper.getMatchedImages().toString());
+            Log.d(TAG, "controlPermissions: "+galleryHelper.getMatchedImages().get(0).getDate());
+            Log.d(TAG, "controlPermissions: "+galleryHelper.getMatchedImages().get(0).getTime());
+
 
         } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, READ_PERMISSION)) {
             Log.d(TAG, "controlPermissions: İzin gerekçesi gösteriliyor..");
-            showDialogPermission();
+            Utils.showDialogPermission(this);
         } else {
             Log.d(TAG, "controlPermissions: Uygulama izni yok. Kullanıcıdan izin alınacak.");
             ActivityCompat.requestPermissions(this, new String[]{READ_PERMISSION}, 1);
@@ -67,25 +69,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void showDialogPermission() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.dialog_permission_title)
-                .setMessage(R.string.dialog_permission_message)
-                .setIcon(R.drawable.ic_settings_black_24dp)
-                .setCancelable(false)
-                .setNegativeButton(R.string.exit_app, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        finish();
-                    }
-                })
-                .setPositiveButton(R.string.allow, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{READ_PERMISSION}, 1);
-                    }
-                }).show();
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -100,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             else{
                 Log.d(TAG, "onRequestPermissionsResult: Kullanıcı izni vermedi. Tekrar istenecek.");
-                showDialogPermission();
+                Utils.showDialogPermission(this);
             }
         }
     }

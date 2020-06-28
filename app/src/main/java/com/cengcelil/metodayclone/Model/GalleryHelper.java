@@ -2,10 +2,14 @@ package com.cengcelil.metodayclone.Model;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.media.ExifInterface;
 import android.provider.MediaStore;
 import android.util.Log;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,13 +17,16 @@ import java.util.Date;
 public class GalleryHelper {
     private static final String TAG = "GalleryHelper";
     private ArrayList<String> allImagePath;
-    private ArrayList<String> matchedImages;
+    private ArrayList<MyImage> matchedImages;
     private Context context;
     private String[] projection = {MediaStore.MediaColumns.DATA};
+    private ExifInterface exifInterface;
 
     public GalleryHelper(Context context) {
         this.context = context;
     }
+
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
 
     public ArrayList<String> getAllImagesPath() {
         Log.d(TAG, "getAllImagesPath: Tüm imajların listesi alınacak.");
@@ -35,7 +42,7 @@ public class GalleryHelper {
         return allImagePath;
     }
 
-    public ArrayList<String> getMatchedImages() {
+    public ArrayList<MyImage> getMatchedImages() {
         matchedImages = new ArrayList<>();
         Calendar currentCalendar = Calendar.getInstance();
         Calendar tempCalendar = Calendar.getInstance();
@@ -43,11 +50,24 @@ public class GalleryHelper {
         for (String filepath : getAllImagesPath()) {
             File file = new File(filepath);
             if (file.exists()) {
-                tempCalendar.setTime(new Date(file.lastModified()));
-                if(currentCalendar.get(Calendar.DAY_OF_MONTH) == tempCalendar.get(Calendar.DAY_OF_MONTH))
-                    if(currentCalendar.get(Calendar.MONTH) == tempCalendar.get(Calendar.MONTH))
-                        if(currentCalendar.get(Calendar.YEAR) != tempCalendar.get(Calendar.YEAR))
-                            matchedImages.add(file.getName());
+                try {
+                    exifInterface = new ExifInterface(file.getPath());
+                    String datetime = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
+                    if (datetime != null) {
+                        try {
+                            tempCalendar.setTime(SIMPLE_DATE_FORMAT.parse(datetime));
+                            if (currentCalendar.get(Calendar.DAY_OF_MONTH) == tempCalendar.get(Calendar.DAY_OF_MONTH))
+                                if (currentCalendar.get(Calendar.MONTH) == tempCalendar.get(Calendar.MONTH))
+                                    if (currentCalendar.get(Calendar.YEAR) != tempCalendar.get(Calendar.YEAR))
+                                        matchedImages.add(new MyImage(tempCalendar,file,null));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
 
             }
         }
